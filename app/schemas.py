@@ -6,7 +6,7 @@ from decimal import Decimal
 class MenuItemResponse(BaseModel):
     id: int
     name: str
-    description: str
+    description: str | None
     price: Decimal
     is_available: bool
 
