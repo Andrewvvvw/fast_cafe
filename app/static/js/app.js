@@ -148,7 +148,7 @@ $(document).ready(function () {
                 if ($(`#card-order-${data.id}`).length === 0) {
                     let itemsHtml = '';
                     data.items.forEach(item => {
-                        let name = item.name || `Товар ID: ${item.item_id}`;
+                        let name = (item.menu_item && item.menu_item.name) ? item.menu_item.name : `Товар ID: ${item.item_id}`;
                         itemsHtml += `<li><span class="badge bg-secondary me-1">${item.quantity}x</span> ${name}</li>`;
                     });
 
