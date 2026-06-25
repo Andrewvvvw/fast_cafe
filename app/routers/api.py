@@ -5,6 +5,7 @@ from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.websocket import manager
+from sqlalchemy.orm import selectinload
 
 router = APIRouter(prefix="/api/orders", tags=["Orders API"])
 
@@ -20,12 +21,19 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
         db.add(order_item)
     
     await db.commit()
-    await db.refresh(order)
+    
+    query = (
+        select(Order)
+        .options(selectinload(Order.items).selectinload(OrderItem.menu_item))
+        .where(Order.id == order.id)
+    )
+    result = await db.execute(query)
+    full_order = result.scalar_one()
 
-    order_json = OrderResponse.model_validate(order).model_dump(mode="json")
+    order_json = OrderResponse.model_validate(full_order).model_dump(mode="json")
     await manager.broadcast(order_json)
 
-    return order
+    return full_order
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)
 async def update_order_status(order_id: int, new_status: OrderStatus, db: AsyncSession = Depends(get_db)) -> Order:
@@ -40,5 +48,10 @@ async def update_order_status(order_id: int, new_status: OrderStatus, db: AsyncS
     await db.commit()
     await db.refresh(order)
 
-    await manager.broadcast({"event": "status_updated", "order_id": order_id, "status": new_status})
+    await manager.broadcast({
+        "event": "status_updated", 
+        "id": order_id, 
+        "new_status": new_status.value
+    })
+    
     return order
