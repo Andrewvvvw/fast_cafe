@@ -9,6 +9,7 @@ class OrderStatus(str, Enum):
     NEW = "new"
     IN_PROGRESS = "in_progress"
     READY = "ready"
+    COMPLETED = "completed"
 
 class MenuItem(Base):
     __tablename__ = "menu_items"

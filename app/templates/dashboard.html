@@ -121,9 +121,11 @@
                                     </div>
                                 {% endif %}
                                 
-                                <div class="text-success text-center small fw-bold border border-success-subtle bg-success-subtle p-2 rounded">
-                                    Ожидает гостя ☕
-                                </div>
+                                <button class="btn btn-success btn-sm w-100 fw-bold js-btn-transition" 
+                                        data-id="{{ order.id }}" 
+                                        data-target-status="completed">
+                                    Выдать заказ
+                                </button>
                             </div>
                         </div>
                     {% endif %}

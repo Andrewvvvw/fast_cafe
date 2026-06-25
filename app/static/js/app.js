@@ -179,21 +179,29 @@ $(document).ready(function () {
             }
 
             if (data.event === 'status_updated') {
-                let orderCard = $(`#card-order-${data.id}`).detach();
-                if(data.new_status === "in_progress") {
-                    orderCard.find('.js-btn-transition').text('Оповестить о готовности');
-                    orderCard.find('.js-btn-transition').data('target-status', 'ready');
+                if (data.new_status === "completed") {
+                    $(`#card-order-${data.id}`).remove();
+                } 
+                else {
+                    let orderCard = $(`#card-order-${data.id}`).detach();
+                    
+                    if(data.new_status === "in_progress") {
+                        orderCard.find('.js-btn-transition')
+                            .text('Оповестить о готовности')
+                            .removeClass('btn-warning')
+                            .addClass('btn-primary')
+                            .data('target-status', 'ready');
+                    }
+                    else if (data.new_status === "ready") {
+                        orderCard.find('.js-btn-transition')
+                            .text('Выдать заказ')
+                            .removeClass('btn-primary')
+                            .addClass('btn-success')
+                            .data('target-status', 'completed');
+                    }
+                    
+                    orderCard.appendTo(`#kanban-stage-${data.new_status}`);
                 }
-                else if (data.new_status === "ready") {
-                    orderCard.find('.js-btn-transition').remove();
-                    orderCard.find('.card-body').append(
-                        `<div 
-                            class="text-success text-center small fw-bold border border-success-subtle bg-success-subtle p-2 rounded">
-                            Ожидает гостя
-                        </div>`
-                    );
-                }
-                orderCard.appendTo(`#kanban-stage-${data.new_status}`);
             };
         };
     }
