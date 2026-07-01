@@ -1,6 +1,6 @@
 # Fast Cafe - Real-time Pre-order & Dashboard System
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Click%20Here-B453E2?style=flat-square)](http://2.59.161.183/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Click%20Here-B453E2?style=flat-square)](http://fast-cafe.duckdns.org/)
 
 
 A B2B business system for automating orders at a local coffee shop. It allows customers to place pre-orders via a web interface, while enabling baristas to receive them instantly on a real-time dashboard.
