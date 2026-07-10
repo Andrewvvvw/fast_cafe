@@ -1,238 +1,239 @@
 $(document).ready(function () {
-    function getCart() {
-        return JSON.parse(localStorage.getItem('cafe_cart') || "[]");
-    }
+    let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
 
-    function saveCart(cart) {
-        localStorage.setItem('cafe_cart', JSON.stringify(cart));
-        renderUI();
-    }
+    function updateCartUI() {
+        let count = 0;
+        let total = 0;
+        let html = '';
 
-    function renderUI() {
-        const cartItemsContainer = $('#cart-items-container');
-        cartItemsContainer.empty();
-        
-        const cart = getCart();
-
-        if(cart.length === 0) {
-            cartItemsContainer.append('<p id="cart-empty-message" class="text-muted text-center py-3">Корзина пуста. Выберите продукцию из меню...</p>');
-            $('#mobile-cart-total').text('0.00 Р');
-            $('#cart-total-amount').text('0.00 Р');
-            $('#btn-submit-order').addClass('disabled');
-        }
-        else {
-            $('#btn-submit-order').removeClass('disabled');
-
-            let grandTotal = 0;
-
-            cart.forEach(item => {
-                let itemTotal = item.price * item.quantity;
-                grandTotal += itemTotal;
-
-                let rowHtml = `
-                    <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded mb-2 border border-light-subtle">
-                        <div style="max-width: 70%;">
-                            <span class="badge bg-primary me-1">${item.quantity}x</span>
-                            <span class="fw-bold text-dark small">${item.name}</span>
-                            <div class="text-muted ms-4" style="font-size: 0.75rem;">${Number(item.price).toFixed(2)} Р/шт</div>
+        if (cart.length === 0) {
+            html = `
+                <div class="text-center py-8 text-slate-400">
+                    <i class="fa-solid fa-box-open text-4xl mb-2"></i>
+                    <p class="text-sm">Корзина пуста. Добавьте что-нибудь вкусное!</p>
+                </div>`;
+            $('#checkout-btn').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+        } else {
+            $('#checkout-btn').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+            cart.forEach((item, index) => {
+                count += item.quantity;
+                total += item.price * item.quantity;
+                html += `
+                    <div class="flex justify-between items-center py-3 border-b border-slate-100 last:border-0">
+                        <div>
+                            <h4 class="font-semibold text-slate-900 text-sm">${item.name}</h4>
+                            <p class="text-xs text-slate-500">${item.price} Р × ${item.quantity}</p>
                         </div>
-                        <div class="text-end">
-                            <span class="fw-bold text-dark small d-block mb-1">${itemTotal.toFixed(2)} Р</span>
-                            <button type="button" 
-                                    class="btn btn-link text-danger p-0 m-0 text-decoration-none small js-cart-remove" 
-                                    data-id="${item.item_id}" 
-                                    style="font-size: 0.8rem;">
-                                Удалить
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-slate-800">${item.price * item.quantity} Р</span>
+                            <button class="remove-item-btn text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition-colors" data-index="${index}">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
                             </button>
                         </div>
-                    </div>
-                `;
-
-                cartItemsContainer.append(rowHtml);
+                    </div>`;
             });
-
-            $('#cart-total-amount').text(`${grandTotal.toFixed(2)} Р`);
-            $('#mobile-cart-total').text(`${grandTotal.toFixed(2)} Р`);
         }
+
+        $('#cart-count').text(count);
+        $('#cart-total-price').text(total + ' Р');
+        $('#cart-items-container').html(html);
     }
 
-    $(document).on('click', '.js-add-to-cart', function() {
-        const itemId = $(this).data('id');
-        const itemName = $(this).data('name');
-        const itemPrice = parseFloat($(this).data('price'));
+    $('#open-cart-btn').click(function() {
+        updateCartUI();
+        $('#cart-modal').removeClass('hidden');
+    });
 
-        const cart = getCart();
-        const existingItem = cart.find(item => item.item_id === itemId);
+    $('.close-cart').click(function() {
+        $('#cart-modal').addClass('hidden');
+    });
 
-        if (existingItem) {
-            existingItem.quantity += 1;
+    $('.add-to-cart-btn').click(function () {
+        const id = parseInt($(this).data('id'));
+        const name = $(this).data('name');
+        const price = parseFloat($(this).data('price'));
+
+        const existing = cart.find(item => item.id === id);
+        if (existing) {
+            existing.quantity += 1;
         } else {
-            cart.push({ item_id: itemId, name: itemName, price: itemPrice, quantity: 1 });
+            cart.push({ id, name, price, quantity: 1 });
         }
+        localStorage.setItem('cafe_cart', JSON.stringify(cart));
+        updateCartUI();
 
-        saveCart(cart);
+        let btn = $(this);
+        let origText = btn.html();
+        btn.html('<i class="fa-solid fa-check mr-1.5"></i>Добавлено!').addClass('bg-green-600 text-white border-transparent');
+        setTimeout(() => btn.html(origText).removeClass('bg-green-600 text-white border-transparent'), 1000);
     });
 
-    $(document).on('click', '.js-cart-remove', function() {
-        const itemId = $(this).data('id');
-        const cart = getCart();
-        const updatedCart = cart.filter(item => item.item_id !== itemId);
-        saveCart(updatedCart);
+    $(document).on('click', '.remove-item-btn', function () {
+        const index = $(this).data('index');
+        cart.splice(index, 1);
+        localStorage.setItem('cafe_cart', JSON.stringify(cart));
+        updateCartUI();
     });
 
-    $('#order-submission-form').on('submit', function(e) {
-        e.preventDefault();
-        const customerComment = $("#order-comment").val();
-        const cart = getCart();
-        const clearedCart = cart.map(({name, price, ...rest}) => rest);
+    $('#checkout-btn').click(function () {
+        if (cart.length === 0) return;
 
-        const orderPayload = {
-            comment: customerComment,
-            items: clearedCart
+        const customerComment = $('#order-comment').val();
+
+        const orderData = {
+            items: cart.map(item => ({ item_id: item.id, quantity: item.quantity })),
+            comment:  customerComment
         };
 
         $.ajax({
-            url: "/api/orders",
+            url: '/api/orders',
             type: 'POST',
-            contentType: 'application/json', 
-            dataType: 'json',
-            data: JSON.stringify(orderPayload),
-
-            success: function(response) {
+            contentType: 'application/json',
+            data: JSON.stringify(orderData),
+            success: function (response) {
+                alert(`Успешно! Ваш заказ #${response.id} оформлен.`);
+                cart = [];
                 localStorage.removeItem('cafe_cart');
-                $('#order-submission-form').trigger('reset');
-                renderUI();
-                alert(`Ваш заказ успешно отправлен в кофейню! Номер заказа: #${response.id} ☕`);
-            },
+                
+                $('#order-comment').val('');
 
-            error: function(xhr, status, error) {
-                console.error("Failed to submit order:", error);
-                const errorDetail = xhr.responseJSON ? xhr.responseJSON.detail : "Unknown server error";
-                alert("Something went wrong: " + JSON.stringify(errorDetail));
+                $('#cart-modal').addClass('hidden');
+                updateCartUI();
+            },
+            error: function () {
+                alert('Произошла ошибка при отправке заказа.');
             }
         });
     });
 
-    renderUI();
+    if ($('#cart-count').length) {
+        updateCartUI();
+    }
 
-    if ($('#ws-status-indicator').length === 0) return;
+    function updateCounts() {
+        if ($('#status-new').length) {
+            $('#count-new').text($('#status-new > div').length);
+            $('#count-progress').text($('#status-progress > div').length);
+            $('#count-ready').text($('#status-ready > div').length);
+        }
+    }
 
-    function connectWebSocket() {
-        const socketProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-        const wsUrl = socketProtocol + window.location.host + '/ws';
-        const ws = new WebSocket(wsUrl);
-        
-        ws.onopen = function(event) {
-            $('#ws-status-indicator')
-                .text("Подключено")
-                .removeClass('text-danger')
-                .addClass('text-success');
-        };
+    updateCounts();
 
-        ws.onclose = function(event) {
-            $('#ws-status-indicator')
-                .text("Соединение разорвано. Переподключение...")
-                .removeClass('text-success')
-                .addClass('text-danger');
-            
-            setTimeout(() => {
-                connectWebSocket();
-            }, 5000);
-        };
+    $('.order-time-render').each(function() {
+        const isoStr = $(this).data('iso');
+        if (isoStr) {
+            const localTime = new Date(isoStr + 'Z').toLocaleTimeString([], {
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Europe/Moscow'
+            });
+            $(this).text(localTime);
+        }
+    });
 
-        ws.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            console.log("Received a message from socket:", data);
-            
-            if (data.status === 'new') {
-                if ($(`#card-order-${data.id}`).length === 0) {
-                    let itemsHtml = '';
-                    data.items.forEach(item => {
-                        let name = (item.menu_item && item.menu_item.name) ? item.menu_item.name : `Товар ID: ${item.item_id}`;
-                        itemsHtml += `<li><span class="badge bg-secondary me-1">${item.quantity}x</span> ${name}</li>`;
-                    });
+    if ($('#status-new').length) {
+        function setupWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            const socket = new WebSocket(wsUrl);
 
-                    let orderCardHtml = `
-                        <div class="card mb-3 border-0 shadow-sm" id="card-order-${data.id}">
-                            <div class="card-body p-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="fw-bold m-0 text-dark">Заказ #${data.id}</h6>
-                                    <span class="text-muted small">Новый</span>
+            socket.onopen = function() {
+                $('#ws-status-indicator').text("WebSocket активен").removeClass('text-rose-400').addClass('text-slate-300');
+            };
+
+            socket.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                console.log("Получено сокет-сообщение от бэкенда:", data);
+
+                if (data.status === 'new') {
+                    if ($(`#card-order-${data.id}`).length === 0) {
+                        let itemsHtml = '';
+                        data.items.forEach(item => {
+                            let name = (item.menu_item && item.menu_item.name) ? item.menu_item.name : `Товар ID: ${item.item_id}`;
+                            itemsHtml += `<li class="text-xs text-slate-600 flex justify-between"><span>• ${name}</span> <span class="font-medium text-slate-800">×${item.quantity}</span></li>`;
+                        });
+
+                        let commentHtml = data.comment ? `
+                            <div class="bg-amber-50 border border-amber-100 text-amber-800 p-2 rounded-lg text-xs mb-2">
+                                <strong>Комментарий:</strong> ${data.comment}
+                            </div>` : '';
+
+                        let timeStr = new Date(data.created_at + 'Z').toLocaleTimeString([], {
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            hour12: false,
+                            timeZone: 'Europe/Moscow'
+                        });
+
+                        let cardHtml = `
+                            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200" id="card-order-${data.id}">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-slate-400">#${data.id}</span>
+                                    <span class="text-xs font-medium text-slate-500">${timeStr}</span>
                                 </div>
-                                
-                                <ul class="list-unstyled small text-dark my-3" style="line-height: 1.6;">
+                                <ul class="space-y-1 my-2 border-y border-slate-50 py-2">
                                     ${itemsHtml}
                                 </ul>
-                                
-                                ${data.comment ? `<div class="alert alert-warning p-2 small mb-3" style="font-size: 0.8rem;"><strong>Комментарий:</strong> ${data.comment}</div>` : ''}
-                                
-                                <button class="btn btn-warning btn-sm w-100 fw-bold js-btn-transition" 
-                                        data-id="${data.id}" 
-                                        data-target-status="in_progress">
-                                    Начать приготовление
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    $(orderCardHtml).prependTo('#kanban-stage-new');
-                }
-            }
+                                ${commentHtml}
+                                <button class="change-status-btn w-full mt-3 bg-blue-600 text-white py-1.5 rounded-xl text-xs font-semibold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/10" data-id="${data.id}" data-status="in_progress">Начать готовить</button>
+                            </div>`;
 
-            if (data.event === 'status_updated') {
-                if (data.new_status === "completed") {
-                    $(`#card-order-${data.id}`).remove();
-                } 
-                else {
-                    let orderCard = $(`#card-order-${data.id}`).detach();
-                    
-                    if(data.new_status === "in_progress") {
-                        orderCard.find('.js-btn-transition')
-                            .text('Оповестить о готовности')
-                            .removeClass('btn-warning')
-                            .addClass('btn-primary')
-                            .data('target-status', 'ready');
+                        $('#status-new').prepend(cardHtml);
+                        updateCounts();
                     }
-                    else if (data.new_status === "ready") {
-                        orderCard.find('.js-btn-transition')
-                            .text('Выдать заказ')
-                            .removeClass('btn-primary')
-                            .addClass('btn-success')
-                            .data('target-status', 'completed');
+                }
+
+                if (data.event === 'status_updated') {
+                    if (data.new_status === 'completed') {
+                        $(`#card-order-${data.id}`).remove();
+                        updateCounts();
+                    } else {
+                        let orderCard = $(`#card-order-${data.id}`).detach();
+                        if (orderCard.length) {
+                            let btn = orderCard.find('.change-status-btn');
+                            
+                            if (data.new_status === 'in_progress') {
+                                btn.text('Готов к выдаче')
+                                   .removeClass('bg-blue-600 hover:bg-blue-700 shadow-blue-600/10')
+                                   .addClass('bg-amber-500 hover:bg-amber-600 shadow-amber-500/10')
+                                   .data('status', 'ready');
+                                $('#status-progress').append(orderCard);
+                            } 
+                            else if (data.new_status === 'ready') {
+                                btn.text('Выдан гостю')
+                                   .removeClass('bg-amber-500 hover:bg-amber-600 shadow-amber-500/10')
+                                   .addClass('bg-slate-800 hover:bg-slate-900')
+                                   .data('status', 'completed');
+                                $('#status-ready').append(orderCard);
+                            }
+                            updateCounts();
+                        }
                     }
-                    
-                    orderCard.appendTo(`#kanban-stage-${data.new_status}`);
                 }
             };
-        };
-    }
 
-    connectWebSocket();
+            socket.onclose = function() {
+                $('#ws-status-indicator').text("Соединение потеряно").removeClass('text-slate-300').addClass('text-rose-400');
+                setTimeout(setupWebSocket, 3000);
+            };
+        }
 
-    $(document).on('click', '.js-btn-transition', function() {
-        const orderId = $(this).data('id');
-        const targetStatus = $(this).data('target-status');
-        
-        const patchPayload = {
-            id: orderId,
-            status: targetStatus,
-        };
+        setupWebSocket();
 
-        $.ajax({
-            url: `/api/orders/${orderId}/status?new_status=${targetStatus}`,
-            type: 'PATCH',
-            contentType: 'application/json', 
-            dataType: 'json',
-            data: JSON.stringify(patchPayload),
+        $(document).on('click', '.change-status-btn', function () {
+            const orderId = $(this).data('id');
+            const nextStatus = $(this).data('status');
 
-            success: function(response) {
-                console.log(`Order ${orderId} was successfully updated!`);
-            },
-
-            error: function(xhr, status, error) {
-                console.error("Failed to submit order:", error);
-                const errorDetail = xhr.responseJSON ? xhr.responseJSON.detail : "Unknown server error";
-                alert("Something went wrong: " + JSON.stringify(errorDetail));
-            }
+            $.ajax({
+                url: `/api/orders/${orderId}/status?new_status=${nextStatus}`,
+                type: 'PATCH',
+                success: function () {},
+                error: function(xhr) {
+                    console.error("Ошибка при смене статуса заказа:", xhr);
+                }
+            });
         });
-    });
+    }
 });
