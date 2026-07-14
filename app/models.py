@@ -19,6 +19,7 @@ class MenuItem(Base):
     description: Mapped[str | None] = mapped_column(String)
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     is_available: Mapped[bool] = mapped_column(Boolean, default=True)
+    image: Mapped[str | None] = mapped_column(String, nullable=True)
 
 class Order(Base):
     __tablename__ = "orders"

@@ -9,6 +9,7 @@ class MenuItemResponse(BaseModel):
     description: str | None
     price: Decimal
     is_available: bool
+    image: str | None
 
     model_config = ConfigDict(from_attributes=True)
 
