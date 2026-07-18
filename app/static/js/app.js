@@ -1,4 +1,6 @@
-$(document).ready(function () {
+import { loadMenu } from "./menu.js";
+
+$(document).ready(async function () {
     let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
 
     function updateCartUI() {
@@ -236,4 +238,6 @@ $(document).ready(function () {
             });
         });
     }
+
+    await loadMenu();
 });

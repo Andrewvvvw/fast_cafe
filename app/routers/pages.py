@@ -5,21 +5,16 @@ from sqlalchemy import select, desc
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
-from app.models import MenuItem, Order, OrderItem
+from app.models import Order, OrderItem
 
 router = APIRouter(tags=["Frontend Pages"])
 templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/")
-async def get_menu(request: Request, db: AsyncSession = Depends(get_db)):
-    query = select(MenuItem).where(MenuItem.is_available == True)
-    result = await db.execute(query)
-
-    menu_items = result.scalars().all()
+async def get_menu_page(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="menu.html",
-        context={"menu_items": menu_items}
     )
 
 @router.get("/dashboard")
