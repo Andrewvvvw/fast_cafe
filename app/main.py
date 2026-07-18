@@ -7,8 +7,7 @@ from app.database import engine, Base, async_session_maker
 from app.utils import seed_cafe_menu
 from app.websocket import manager
 
-from app.routers.api import router as api_router
-from app.routers.pages import router as pages_router
+from app.routers.router import router
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -25,8 +24,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title = "Fast Cafe", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-app.include_router(pages_router)
-app.include_router(api_router)
+app.include_router(router=router)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
