@@ -24,7 +24,7 @@ class MenuItem(Base):
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey("categories.id"), nullable=False)
 
     tags: Mapped[list["Tag"]] = relationship(secondary="menu_item_tags", back_populates="menu_items")
-    category: Mapped["Category"] = relationship(back_populates="menu_items", lazy="joined")
+    category: Mapped["Category"] = relationship(back_populates="menu_items")
 
 class Order(Base):
     __tablename__ = "orders"
