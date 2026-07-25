@@ -1,5 +1,26 @@
-export async function loadMenu() {
-    const response = await fetch("/api/menu");
+export async function loadMenu(filters) {
+    
+    const params = new URLSearchParams();
+
+    if(filters) {
+        const categoryId = filters["categoryId"];
+        const tagIds = filters["tagIds"];
+        
+        if(categoryId !== null && categoryId !== undefined) {
+            params.append("category_id", categoryId);
+        }
+
+        if (Array.isArray(tagIds) && tagIds.length > 0){
+            tagIds.forEach(tagId => {
+                params.append("tag_ids", tagId);
+            });
+        }
+    }
+
+    const url = `/api/menu?${params.toString()}`;
+    console.log(`Sending api request on url: ${url}`);
+
+    const response = await fetch(url);
     const items = await response.json();
     renderMenu(items);
 }

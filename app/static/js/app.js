@@ -1,4 +1,5 @@
 import { loadMenu } from "./menu.js";
+import { loadFilters } from "./filters.js";
 
 $(document).ready(async function () {
     let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
@@ -239,5 +240,12 @@ $(document).ready(async function () {
         });
     }
 
+    await loadFilters();
     await loadMenu();
+
+
+    document.addEventListener("filtersChanged", function (event) {
+        const filters = event.detail;
+        loadMenu(filters);
+    });
 });

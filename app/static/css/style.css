@@ -1,0 +1,27 @@
+.category-filter,
+.tag-filter {
+    transition:
+        background-color 200ms ease,
+        border-color 200ms ease,
+        color 200ms ease,
+        transform 150ms ease,
+        box-shadow 200ms ease;
+}
+
+.category-filter:hover,
+.tag-filter:hover {
+    transform: translateY(-1px);
+}
+
+.category-filter:active,
+.tag-filter:active {
+    transform: scale(0.96);
+}
+
+.category-filter.active,
+.tag-filter.active {
+    background-color: #d97706;
+    border-color: #d97706;
+    color: white;
+    box-shadow: 0 4px 12px rgb(217 119 6 / 0.25);
+}
