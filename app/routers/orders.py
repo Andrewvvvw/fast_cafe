@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from app.schemas import OrderResponse, OrderCreate
-from app.models import Order, OrderItem, OrderStatus
+from app.models import Order, OrderItem, OrderStatus, MenuItem
 from app.database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -17,7 +17,17 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
     await db.flush()
 
     for item in order_data.items:
-        order_item = OrderItem(order_id = order.id, item_id = item.item_id, quantity=item.quantity)
+        menu_item = await db.get(MenuItem, item.item_id)
+
+        if menu_item is None:
+            raise ValueError("Invalid MenuItem added")
+
+        order_item = OrderItem(
+            order_id = order.id,
+            item_id = item.item_id,
+            quantity=item.quantity,
+            price=menu_item.price
+        )
         db.add(order_item)
     
     await db.commit()
