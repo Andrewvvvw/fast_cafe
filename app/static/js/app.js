@@ -51,7 +51,7 @@ $(document).ready(async function () {
         $('#cart-modal').addClass('hidden');
     });
 
-    $('.add-to-cart-btn').click(function () {
+    $(document).on('click', '.add-to-cart-btn', function () {
         const id = parseInt($(this).data('id'));
         const name = $(this).data('name');
         const price = parseFloat($(this).data('price'));
