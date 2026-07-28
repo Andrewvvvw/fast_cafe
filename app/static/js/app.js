@@ -226,6 +226,7 @@ $(document).ready(async function () {
         setupWebSocket();
 
         $(document).on('click', '.change-status-btn', function () {
+            console.log("change status button pressed")
             const orderId = $(this).data('id');
             const nextStatus = $(this).data('status');
 
@@ -240,9 +241,10 @@ $(document).ready(async function () {
         });
     }
 
-    await loadFilters();
-    await loadMenu();
-
+    if (document.querySelector("#menu-grid")) {
+        await loadFilters();
+        await loadMenu();
+    }
 
     document.addEventListener("filtersChanged", function (event) {
         const filters = event.detail;

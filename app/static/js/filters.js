@@ -2,6 +2,7 @@ export async function loadFilters() {
     const response = await fetch("/api/filters");
     const filters = await response.json();
     renderFilters(filters);
+    initFilterContainers();
 }
 
 function renderFilters(filters) {
@@ -67,58 +68,60 @@ function createTagButton(tag) {
     `;
 }
 
-let selectedCategoryId = null;
-const selectedTagIds = new Set();
+function initFilterContainers() {
+    let selectedCategoryId = null;
+    const selectedTagIds = new Set();
 
-const categoriesContainer = document.querySelector("#category-grid");
-categoriesContainer.addEventListener("click", function (event) {
-    const button = event.target.closest(".category-filter");
+    const categoriesContainer = document.querySelector("#category-grid");
+    categoriesContainer.addEventListener("click", function (event) {
+        const button = event.target.closest(".category-filter");
 
-    if (!button) {
-        return;
-    }
-
-    const categoryId = Number(button.dataset.categoryId);
-    if(selectedCategoryId === categoryId) {
-        selectedCategoryId = null;
-    }
-    else {
-        const oldButton = document.querySelector(
-            `.category-filter[data-category-id="${selectedCategoryId}"]`
-        ); 
-        if(oldButton) {
-            oldButton.classList.remove("active");
+        if (!button) {
+            return;
         }
-        selectedCategoryId = categoryId;
-    }
-    button.classList.toggle('active');
 
-    console.log(`Clicked button with category ${categoryId}(${button.innerText}). Selected category: ${selectedCategoryId}`);
-    sendFiltersChangedEvent();
-});
+        const categoryId = Number(button.dataset.categoryId);
+        if(selectedCategoryId === categoryId) {
+            selectedCategoryId = null;
+        }
+        else {
+            const oldButton = document.querySelector(
+                `.category-filter[data-category-id="${selectedCategoryId}"]`
+            ); 
+            if(oldButton) {
+                oldButton.classList.remove("active");
+            }
+            selectedCategoryId = categoryId;
+        }
+        button.classList.toggle('active');
 
-const tagsContainer = document.querySelector("#tag-grid");
-tagsContainer.addEventListener("click", function (event) {
-    const button = event.target.closest(".tag-filter");
+        console.log(`Clicked button with category ${categoryId}(${button.innerText}). Selected category: ${selectedCategoryId}`);
+        sendFiltersChangedEvent(selectedCategoryId, selectedTagIds);
+    });
 
-    if (!button) {
-        return;
-    }
+    const tagsContainer = document.querySelector("#tag-grid");
+    tagsContainer.addEventListener("click", function (event) {
+        const button = event.target.closest(".tag-filter");
 
-    const tagId = Number(button.dataset.tagId);
-    button.classList.toggle("active");
-    if (selectedTagIds.has(tagId)) {
-        selectedTagIds.delete(tagId);
-    } else {
-        selectedTagIds.add(tagId);
-    }
+        if (!button) {
+            return;
+        }
 
-    console.log(`Clicked button with tag ${tagId}(${button.innerText}). Selected tags: ${Array.from(selectedTagIds)}`);    
-    sendFiltersChangedEvent();
-});
+        const tagId = Number(button.dataset.tagId);
+        button.classList.toggle("active");
+        if (selectedTagIds.has(tagId)) {
+            selectedTagIds.delete(tagId);
+        } else {
+            selectedTagIds.add(tagId);
+        }
+
+        console.log(`Clicked button with tag ${tagId}(${button.innerText}). Selected tags: ${Array.from(selectedTagIds)}`);    
+        sendFiltersChangedEvent(selectedCategoryId, selectedTagIds);
+    });
+}
 
 
-function sendFiltersChangedEvent() {
+function sendFiltersChangedEvent(selectedCategoryId, selectedTagIds) {
     const filters = {
         categoryId: selectedCategoryId,
         tagIds: Array.from(selectedTagIds)
