@@ -5,7 +5,7 @@ from decimal import Decimal
 
 async def seed_menu_item_categories(session: AsyncSession):
     category_names = [
-        "Coffee"
+        "coffee"
     ]
 
     for category in category_names:
@@ -26,12 +26,12 @@ async def seed_menu_item_categories(session: AsyncSession):
 
 async def seed_menu_item_tags(session: AsyncSession):
     tag_names = [
-        "Hot",
-        "Cold",
-        "Milk",
-        "Cream",
-        "Whipped Cream",
-        "Chocolate",
+        "hot",
+        "cold",
+        "milk",
+        "cream",
+        "whipped cream",
+        "chocolate",
     ]
 
     for tag in tag_names:
@@ -58,7 +58,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Классический крепкий черный кофе.",
             "image": "espresso.webp",
             "category_id": 1,
-            "tags": ["Hot"]
+            "tags": ["hot"]
         },
         {
             "name": "Доппио",
@@ -66,7 +66,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Двойная порция классического эспрессо.",
             "image": "doppio.webp",
             "category_id": 1,
-            "tags": ["Hot"]
+            "tags": ["hot"]
         },
         {
             "name": "Ристретто",
@@ -74,7 +74,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Крепкий кофейный концентрат, плотный вкус.",
             "image": "ristretto.webp",
             "category_id": 1,
-            "tags": ["Hot"]
+            "tags": ["hot"]
         },
         {
             "name": "Лунго",
@@ -82,7 +82,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Эспрессо с повышенным содержанием воды.",
             "image": "lungo.webp",
             "category_id": 1,
-            "tags": ["Hot"]
+            "tags": ["hot"]
         },
         {
             "name": "Американо",
@@ -90,7 +90,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Эспрессо, разбавленный горячей водой.",
             "image": "americano.webp",
             "category_id": 1,
-            "tags": ["Hot"]
+            "tags": ["hot"]
         },
         {
             "name": "Фильтр-кофе",
@@ -98,7 +98,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Мягкий черный кофе капельного заваривания.",
             "image": "filter-coffee.webp",
             "category_id": 1,
-            "tags": ["Hot"]
+            "tags": ["hot"]
         },
         {
             "name": "Капучино",
@@ -106,7 +106,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Идеальный баланс кофе и молочной пены.",
             "image": "cappucino.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk"]
+            "tags": ["hot", "milk"]
         },
         {
             "name": "Латте",
@@ -114,7 +114,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Нежный молочный напиток на основе эспрессо.",
             "image": "latte.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk"]
+            "tags": ["hot", "milk"]
         },
         {
             "name": "Флэт Уайт",
@@ -122,7 +122,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Насыщенный кофейный вкус с тонкой пенкой.",
             "image": "flat-white.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk"]
+            "tags": ["hot", "milk"]
         },
         {
             "name": "Раф-кофе",
@@ -130,7 +130,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Сливочный напиток со вкусом ванильного мороженого.",
             "image": "raf.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk", "Cream"]
+            "tags": ["hot", "milk", "cream"]
         },
         {
             "name": "Мокачино",
@@ -138,7 +138,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Кофейно-молочный микс с добавлением шоколада.",
             "image": "mocha.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk", "Chocolate"]
+            "tags": ["hot", "milk", "chocolate"]
         },
         {
             "name": "Макиато",
@@ -146,7 +146,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Эспрессо с каплей нежной молочной пены.",
             "image": "makiato.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk"]
+            "tags": ["hot", "milk"]
         },
         {
             "name": "Латте Макиато",
@@ -154,7 +154,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Слоистый кофейный коктейль с пышной пеной.",
             "image": "latte-makiato.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk"]
+            "tags": ["hot", "milk"]
         },
         {
             "name": "Кортадо",
@@ -162,7 +162,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Испанский рецепт: кофе и молоко 1:1.",
             "image": "cortado.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk"]
+            "tags": ["hot", "milk"]
         },
         {
             "name": "Кофе по-венски",
@@ -170,7 +170,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Черный кофе под шапкой взбитых сливок.",
             "image": "vienna-coffee.webp",
             "category_id": 1,
-            "tags": ["Hot", "Cream"]
+            "tags": ["hot", "cream"]
         },
         {
             "name": "Кон Панна",
@@ -178,7 +178,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Порция эспрессо с нежными взбитыми сливками.",
             "image": "con-panna.webp",
             "category_id": 1,
-            "tags": ["Hot", "Cream"]
+            "tags": ["hot", "cream"]
         },
         {
             "name": "Пикколо Латте",
@@ -186,7 +186,7 @@ async def seed_menu_items(session: AsyncSession):
             "description": "Миниатюрный латте с ярким вкусом кофе.",
             "image": "piccolo-latte.webp",
             "category_id": 1,
-            "tags": ["Hot", "Milk"]
+            "tags": ["hot", "milk"]
         }
     ]
 

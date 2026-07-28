@@ -1,3 +1,5 @@
+import { TAG_TRANSLATIONS, CATEGORY_TRANSLATIONS } from "./translations.js";
+
 export async function loadFilters() {
     const response = await fetch("/api/filters");
     const filters = await response.json();
@@ -38,7 +40,7 @@ function createCategoryButton(category) {
             "
             data-category-id="${category.id}"
         >
-            ${category.name}
+            ${CATEGORY_TRANSLATIONS[category.name]}
         </button>
     `;
 }
@@ -63,7 +65,7 @@ function createTagButton(tag) {
             "
             data-tag-id="${tag.id}"
         >
-            ${tag.name}
+            ${TAG_TRANSLATIONS[tag.name]}
         </button>
     `;
 }
