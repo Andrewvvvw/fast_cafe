@@ -1,15 +1,14 @@
 import { loadMenu } from "./menu.js";
 import { loadFilters } from "./filters.js";
+import { addItem, removeItem, getCartSize, clearCart, getCartItems, getCart } from "./cart.js";
 
 $(document).ready(async function () {
-    let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
-
     function updateCartUI() {
         let count = 0;
         let total = 0;
         let html = '';
 
-        if (cart.length === 0) {
+        if (getCartSize() === 0) {
             html = `
                 <div class="text-center py-8 text-slate-400">
                     <i class="fa-solid fa-box-open text-4xl mb-2"></i>
@@ -18,7 +17,8 @@ $(document).ready(async function () {
             $('#checkout-btn').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
         } else {
             $('#checkout-btn').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
-            cart.forEach((item, index) => {
+            const cart = getCart();
+            cart.forEach((item) => {
                 count += item.quantity;
                 total += item.price * item.quantity;
                 html += `
@@ -29,7 +29,7 @@ $(document).ready(async function () {
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-bold text-slate-800">${item.price * item.quantity} Р</span>
-                            <button class="remove-item-btn text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition-colors" data-index="${index}">
+                            <button class="remove-item-btn text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition-colors" data-id="${item.id}">
                                 <i class="fa-solid fa-trash-can text-sm"></i>
                             </button>
                         </div>
@@ -56,36 +56,23 @@ $(document).ready(async function () {
         const name = $(this).data('name');
         const price = parseFloat($(this).data('price'));
 
-        const existing = cart.find(item => item.id === id);
-        if (existing) {
-            existing.quantity += 1;
-        } else {
-            cart.push({ id, name, price, quantity: 1 });
-        }
-        localStorage.setItem('cafe_cart', JSON.stringify(cart));
+        addItem(id, name, price);
         updateCartUI();
 
-        let btn = $(this);
-        let origText = btn.html();
-        btn.html('<i class="fa-solid fa-check mr-1.5"></i>Добавлено!').addClass('bg-green-600 text-white border-transparent');
-        setTimeout(() => btn.html(origText).removeClass('bg-green-600 text-white border-transparent'), 1000);
     });
 
     $(document).on('click', '.remove-item-btn', function () {
-        const index = $(this).data('index');
-        cart.splice(index, 1);
-        localStorage.setItem('cafe_cart', JSON.stringify(cart));
+        const id = Number($(this).data('id'));
+        removeItem(id);
         updateCartUI();
     });
 
     $('#checkout-btn').click(function () {
-        if (cart.length === 0) return;
-
-        const customerComment = $('#order-comment').val();
+        if (getCartSize() === 0) return;
 
         const orderData = {
-            items: cart.map(item => ({ item_id: item.id, quantity: item.quantity })),
-            comment:  customerComment
+            items: getCartItems(),
+            comment:  $('#order-comment').val()
         };
 
         $.ajax({
@@ -95,8 +82,7 @@ $(document).ready(async function () {
             data: JSON.stringify(orderData),
             success: function (response) {
                 alert(`Успешно! Ваш заказ #${response.id} оформлен.`);
-                cart = [];
-                localStorage.removeItem('cafe_cart');
+                clearCart();
                 
                 $('#order-comment').val('');
 
