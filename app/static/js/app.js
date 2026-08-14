@@ -104,9 +104,9 @@ $(document).ready(async function () {
             success: function (response) {
                 alert(`Успешно! Ваш заказ #${response.id} оформлен.`);
                 clearCart();
+                renderMenu(getMenuItems());
                 
                 $('#order-comment').val('');
-
                 $('#cart-modal').addClass('hidden');
                 updateCartUI();
             },
