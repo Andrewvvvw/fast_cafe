@@ -6,12 +6,31 @@ export function getCart() {
 
 export function addItem(id, name, price) {
     const existing = cart.find(item => item.id === id);
+    
     if (existing) {
         existing.quantity += 1;
     } else {
         cart.push({ id, name, price, quantity: 1 });
     }
-    localStorage.setItem('cafe_cart', JSON.stringify(cart));
+    saveCart();
+}
+
+export function decreaseItem(id) {
+    const index = cart.findIndex(item => item.id === id);
+
+    if (index === -1) {
+        return;
+    }
+
+    const item = cart[index];
+
+    if (item.quantity > 1) {
+        item.quantity -= 1;
+    } else {
+        cart.splice(index, 1);
+    }
+
+    saveCart();
 }
 
 export function removeItem(id) {
@@ -21,7 +40,11 @@ export function removeItem(id) {
         cart.splice(index, 1);
     }
     
-    localStorage.setItem('cafe_cart', JSON.stringify(cart));
+    saveCart();
+}
+
+export function getItem(id) {
+    return cart.find(item => item.id === id);
 }
 
 export function getCartSize() {
@@ -38,4 +61,8 @@ export function getCartItems() {
 export function clearCart() {
     cart.length = 0;
     localStorage.removeItem('cafe_cart');
+}
+
+function saveCart() {
+    localStorage.setItem('cafe_cart', JSON.stringify(cart));
 }

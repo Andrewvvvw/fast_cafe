@@ -1,6 +1,6 @@
-import { loadMenu } from "./menu.js";
+import { getMenuItems, loadMenu, renderMenu } from "./menu.js";
 import { loadFilters } from "./filters.js";
-import { addItem, removeItem, getCartSize, clearCart, getCartItems, getCart } from "./cart.js";
+import { addItem, removeItem, getCartSize, clearCart, getCartItems, getCart, decreaseItem } from "./cart.js";
 
 $(document).ready(async function () {
     function updateCartUI() {
@@ -57,13 +57,34 @@ $(document).ready(async function () {
         const price = parseFloat($(this).data('price'));
 
         addItem(id, name, price);
-        updateCartUI();
 
+        renderMenu(getMenuItems());
+        updateCartUI();
     });
 
     $(document).on('click', '.remove-item-btn', function () {
         const id = Number($(this).data('id'));
         removeItem(id);
+
+        renderMenu(getMenuItems());
+        updateCartUI();
+    });
+
+    $(document).on('click', '.decrease-cart-btn', function () {
+        const id = Number($(this).data('id'));
+
+        decreaseItem(id);
+
+        renderMenu(getMenuItems());
+        updateCartUI();
+    });
+
+    $(document).on('click', '.increase-cart-btn', function () {
+        const id = Number($(this).data('id'));
+
+        addItem(id);
+
+        renderMenu(getMenuItems());
         updateCartUI();
     });
 

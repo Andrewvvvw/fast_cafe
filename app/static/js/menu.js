@@ -1,3 +1,11 @@
+import { getItem } from "./cart.js";
+
+let items;
+
+export function getMenuItems() {
+    return items;
+}
+
 export async function loadMenu(filters) {
     
     const params = new URLSearchParams();
@@ -21,7 +29,7 @@ export async function loadMenu(filters) {
     console.log(`Sending api request on url: ${url}`);
 
     const response = await fetch(url);
-    const items = await response.json();
+    items = await response.json();
     renderMenu(items);
 }
 
@@ -48,25 +56,59 @@ function createCard(item) {
                 <p class="text-sm text-slate-500 flex-grow mb-4">
                     ${item.description || "Классическая позиция нашего заведения."}
                 </p>
-                
-                <button 
-                    class="add-to-cart-btn w-full bg-slate-50 border border-slate-200 text-slate-700 py-2.5 rounded-xl font-medium hover:bg-amber-600 hover:text-white hover:border-transparent transition-all duration-200 active:scale-[0.98] whitespace-nowrap text-sm sm:text-base"
-                    data-id="${item.id}" 
-                    data-name="${item.name}" 
-                    data-price="${item.price}"
-                >
-                    <i class="fa-solid fa-plus mr-1.5 text-xs"></i>
-                    В корзину
-                </button>
+                <div class="cart-controls" data-item-id="${item.id}">
+                    ${createCartButton(item)}
+                </div>
             </div>
         </div>
     `;
 }
 
-function renderMenu(items) {
+export function renderMenu(items) {
     $("#menu-grid").html("");
 
     items.forEach(item => {
         $("#menu-grid").append(createCard(item));
     });
+}
+
+function createCartButton(item) {
+    const cartItem = getItem(item.id);
+
+    if (!cartItem) {
+        return `
+            <button
+                class="add-to-cart-btn w-full bg-slate-50 border border-slate-200 text-slate-700 py-2.5 rounded-xl font-medium hover:bg-amber-600 hover:text-white hover:border-transparent transition-all duration-200 active:scale-[0.98] whitespace-nowrap text-sm sm:text-base"
+                data-id="${item.id}"
+                data-name="${item.name}"
+                data-price="${item.price}"
+            >
+                В корзину
+            </button>
+        `;
+    }
+
+    return `
+        <div class="cart-controls w-full flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl overflow-hidden text-sm sm:text-base">
+            <button
+                class="decrease-cart-btn w-1/3 py-2.5 text-slate-700 font-semibold hover:bg-amber-600 hover:text-white transition-all duration-200 active:scale-[0.98]"
+                data-id="${item.id}"
+                aria-label="Уменьшить количество"
+            >
+                −
+            </button>
+
+            <span class="w-1/3 text-center font-semibold text-slate-700">
+                ${cartItem.quantity}
+            </span>
+
+            <button
+                class="increase-cart-btn w-1/3 py-2.5 text-slate-700 font-semibold hover:bg-amber-600 hover:text-white transition-all duration-200 active:scale-[0.98]"
+                data-id="${item.id}"
+                aria-label="Увеличить количество"
+            >
+                +
+            </button>
+        </div>
+    `;
 }
