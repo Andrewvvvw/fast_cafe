@@ -1,6 +1,6 @@
 # Fast Cafe - Real-time Pre-order & Dashboard Platform
 
-[![Demo hosting is currently not working](https://img.shields.io/badge/Live%20Demo-Click%20Here-B453E2?style=flat-square)](http://fast-cafe.duckdns.org/)
+[![Demo hosting is currently not working](https://img.shields.io/badge/Demo%20Hosting%20is%20currently%20not%20working-Click%20Here-B453E2?style=flat-square)](http://fast-cafe.duckdns.org/)
 
 
 A web-based pre-order platform designed for coffee shops. It allows customers to place orders online while enabling baristas to manage incoming orders through a real-time dashboard.
